@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leakage Current App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            margin: 20px auto;
+        }
+        label, select {
+            margin-bottom: 15px;
+        }
+        input[type="submit"] {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        #condition {
+            margin-top: 20px;
+            font-weight: bold;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <h1>Select Electrical Parameters</h1>
+    
+    <form id="leakage-form">
+        <!-- Leakage Current Dropdown -->
+        <label for="leakage_current">Leakage Current (mA):</label>
+        <select name="leakage_current" id="leakage_current">
+            {% for option in options.leakage_current %}
+                <option value="{{ option }}">{{ option }} mA</option>
+            {% endfor %}
+        </select>
+
+        <!-- Earth Resistance Dropdown -->
+        <label for="earth_resistance">Earth Resistance (Ohms):</label>
+        <select name="earth_resistance" id="earth_resistance">
+            {% for option in options.earth_resistance %}
+                <option value="{{ option }}">{{ option }} Ohms</option>
+            {% endfor %}
+        </select>
+
+        <!-- Temperature Dropdown -->
+        <label for="temperature">Temperature (°C):</label>
+        <select name="temperature" id="temperature">
+            {% for option in options.temperature %}
+                <option value="{{ option }}">{{ option }} °C</option>
+            {% endfor %}
+        </select>
+
+        <!-- Humidity Dropdown -->
+        <label for="humidity">Humidity (%):</label>
+        <select name="humidity" id="humidity">
+            {% for option in options.humidity %}
+                <option value="{{ option }}">{{ option }} %</option>
+            {% endfor %}
+        </select>
+
+        <!-- Voltage Dropdown -->
+        <label for="voltage">Voltage (V):</label>
+        <select name="voltage" id="voltage">
+            {% for option in options.voltage %}
+                <option value="{{ option }}">{{ option }} V</option>
+            {% endfor %}
+        </select>
+
+        <!-- Continuity Status Dropdown -->
+        <label for="continuity_status">Continuity Status:</label>
+        <select name="continuity_status" id="continuity_status">
+            {% for option in options.continuity_status %}
+                <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Phase Dropdown -->
+        <label for="phase">Phase:</label>
+        <select name="phase" id="phase">
+            {% for option in options.phase %}
+                <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Submit Button -->
+        <input type="submit" value="Submit">
+    </form>
+
+    <!-- Paragraph to display the condition -->
+    <p id="condition">Awaiting input...</p>
+
+    <script>
+        // JavaScript to handle form submission and display the condition
+        document.getElementById('leakage-form').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent form from submitting the normal way
+
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach((value, key) => data[key] = value);
+
+            // Send POST request via AJAX to Flask backend
+            fetch('/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update the <p> tag with the condition received from the server
+                document.getElementById('condition').innerText = `Leakage Condition: ${data.condition}`;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
